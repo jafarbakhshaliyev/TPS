@@ -56,13 +56,13 @@ class BatchAugmentation():
         xy = torch.cat([x,y],dim=1)
         b_idx = np.arange(xy.shape[1])
         np.random.shuffle(b_idx)
-        crop_num = int(xy.shape[1]*rate) # rate was 0.5
+        crop_num = int(xy.shape[1]*rate) 
         xy[:,b_idx[:crop_num],:] = 0
         return xy
 
     def masking_seg(self,x,y,rate=0.5):
         xy = torch.cat([x,y],dim=1)
-        b_idx = int(np.random.rand(1)*xy.shape[1]//2) # can change to rate
+        b_idx = int(np.random.rand(1)*xy.shape[1]//2) 
         xy[:,b_idx:b_idx+xy.shape[1]//2,:] = 0
         return xy
 
@@ -215,17 +215,17 @@ class BatchAugmentation():
         device = xy.device
         X = torch.fft.rfft(xy, dim=1)  # Shape: (B, num_freqs, D)
 
-        # Compute the magnitude and maximum magnitude per channel
+
         mag = torch.abs(X)  # Shape: (B, num_freqs, D)
         max_mag = mag.amax(dim=1, keepdim=True)  # Shape: (B, 1, D)
         num_freqs = X.size(1)
 
-        # low-frequency indices (excluding DC component at index 0)
+
         N_low = num_freqs // 2  
         low_freq_indices = torch.arange(1, N_low, device=device)  # Indices from 1 to N_low - 1
         num_low_freqs = len(low_freq_indices)
 
-        # Randomly select a low-frequency index per sample and per channel
+
         batch_size = x.size(0)
         num_channels = x.size(2)
         selected_indices = torch.randint(0, num_low_freqs, (batch_size, num_channels), device=device)  # Shape: (B, D)
@@ -236,10 +236,9 @@ class BatchAugmentation():
         
         orig_phase = torch.angle(X[batch_indices, freq_indices, channel_indices])  # Shape: (B, D)
         
-        # Set the magnitude to half of the maximum magnitude per channel
+
         new_mag = max_mag.squeeze(1) * rate  # Shape: (B, D)
-        
-        # Reconstruction
+
         X[batch_indices, freq_indices, channel_indices] = new_mag * torch.exp(1j * orig_phase)
         xy = torch.fft.irfft(X, n=xy.size(1), dim=1)  # Shape: (B, T_total, D)
         
@@ -327,7 +326,7 @@ class BatchAugmentation():
             reconstructed[:, :, start:end] += patches[:, :, i]
             counts[:, :, start:end] += 1
 
-        counts[counts == 0] = 1  # Prevent division by zero
+        counts[counts == 0] = 1 
         xy = reconstructed / counts
 
         # Permute back to (B, T, C)
@@ -507,149 +506,6 @@ class BatchAugmentation():
 
         return xy
 
-    def asd(self, x, y, rate = 0.5, top_k = 5, dtw_window_ratio = 0.1):
-        """
-        Perform ASD-based data augmentation on a batch of time series.
-
-        x: (B, T_x, D)  # look-back window
-        y: (B, T_y, D)  # horizon
-          - both on the same device (CPU or GPU)
-
-        Returns
-        -------
-        xy_aug : torch.Tensor
-            Shape: (B, T_x+T_y, D)
-            The newly synthesized samples for each of the B original samples.
-            You can then concatenate these to your original data if desired.
-        """
-        device = x.device
-        xy = torch.cat([x, y], dim=1) 
-        B, T_total, D = xy.shape
-
-        # Move to CPU for dtw calculation (dtaidistance uses NumPy/C)
-        xy_np = xy.detach().cpu().numpy()  # shape: (B, T_total, D)
-
-        # pairwise DTW distances
-        distances = np.zeros((B, B), dtype=np.float64)
-
-        # a simple approach: for each dimension, compute distance_matrix_fast, sum results.
-        for d_idx in range(D):
-            series_d = xy_np[:, :, d_idx]
-            series_d = np.ascontiguousarray(series_d, dtype=np.double)
-
-            window = None
-            if dtw_window_ratio is not None:
-                window = int(dtw_window_ratio * T_total)
-
-            try:
-                dist_d = dtw.distance_matrix_fast(series_d,
-                                                  window=window,
-                                                  parallel=True)
-            except Exception as e:
-                print(f"[ASD] Fallback (dimension={d_idx}): {e}, using distance_matrix()")
-                dist_d = dtw.distance_matrix(series_d, window=window)
-
-            distances += dist_d  
-
-        if D > 1:
-            distances /= D
-
-        distances_t = torch.from_numpy(distances).float().to(device)  # shape (B, B)
-
-        # for each sample i, get its top_k neighbors, build an exponentially weighted sum
-        xy_syn_list = []
-
-        for i in range(B):
-
-            dist_i = distances_t[i].clone()
-            dist_i[i] = float('inf')
-
-            # top_k neighbors
-            vals, idxs = torch.topk(dist_i, k=top_k, largest=False)  # shape: (top_k,)
-
-            # Compute weights
-            d_nn = vals[0].clamp(min=1e-8)
-            factor = vals / d_nn  # ratio
-            weights = torch.exp(torch.log(torch.tensor(rate, device=device)) * factor)
-            weights = weights / weights.sum()  # normalize
-
-            # Weighted sum of neighbors
-            neighbors = xy[idxs]
-            weighted_sum = (neighbors * weights.view(top_k, 1, 1)).sum(dim=0)  # (T_total, D)
-
-            new_sample = weighted_sum
-
-            xy_syn_list.append(new_sample)
-
-        xy = torch.stack(xy_syn_list, dim=0)
-        xy = xy.to(device, dtype=torch.float32)
-
-        return xy
-
-    def process_one_sample_cpu(self, sample_i_cpu, block_size=24, stl_period=7):
-        """
-        Process a single sample using arch.bootstrap.MovingBlockBootstrap properly.
-        Args:
-            sample_i_cpu: numpy array of shape (T, D)
-            block_size: size of blocks for MBB
-            stl_period: period for STL decomposition
-        """
-        
-        T, D = sample_i_cpu.shape
-        
-        trends_np = np.zeros_like(sample_i_cpu)
-        seasonals_np = np.zeros_like(sample_i_cpu)
-        remainders_np = np.zeros_like(sample_i_cpu)
-
-        # STL decomposition
-        for d in range(D):
-            series_d = sample_i_cpu[:, d]
-            stl = STL(series_d, period=stl_period, robust=True)
-            res = stl.fit()
-            trends_np[:, d] = res.trend
-            seasonals_np[:, d] = res.seasonal
-            remainders_np[:, d] = res.resid
-
-        # MBB to remainder series
-        new_remainders = np.zeros_like(remainders_np)
-        for d in range(D):
-            bs = MovingBlockBootstrap(block_size, remainders_np[:, d], seed=None)
-        
-            for data in bs.bootstrap(1):
-                new_remainders[:, d] = data[0][0]  # First bootstrap replicate
-                break  # We only need one sample
-
-        # Reconstruction
-        new_sample = trends_np + seasonals_np + new_remainders
-        return new_sample
-
-    def mbb(self, x, y, block_size=24, stl_period=7):
-        """
-        Parallel MBB-based STL augmentation using arch.bootstrap.
-        Args:
-            x: input tensor (B, T_x, D)
-            y: target tensor (B, T_y, D)
-            block_size: size of moving blocks
-            stl_period: period for STL decomposition
-        """
-        xy = torch.cat([x, y], dim=1) 
-        device = xy.device
-        dtype = xy.dtype
-        B, T, D = xy.shape
-
-        x_cpu = xy.detach().cpu().numpy()
-        results = Parallel(n_jobs=-1)(
-            delayed(self.process_one_sample_cpu)(
-                x_cpu[i], block_size, stl_period
-            )
-            for i in range(B)
-        )
-
-        results_np = np.stack(results, axis=0)
-        xy = torch.from_numpy(results_np).to(device=device, dtype=dtype)
-        
-        return xy
-    
 
 class DatasetAugmentation():
     def __init__(self):
