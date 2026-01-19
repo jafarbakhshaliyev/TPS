@@ -286,10 +286,7 @@ class BatchAugmentation():
 
 
     def temporal_patch_shuffle(self, x, y, patch_len=16, stride=5, rate=0.5):
-        """
-        Divides the time series into patches using `unfold` and shuffles a proportion of them.
-        Prioritizes shuffling patches with less critical information to preserve essential temporal dependencies.
-        """
+   
         xy = torch.cat([x, y], dim=1)  # (B, T, C)
         B, T, C = xy.shape
 
@@ -299,14 +296,14 @@ class BatchAugmentation():
 
         patches = patches.permute(0, 2, 1, 3).contiguous() # (B, num_patches, C, patch_len)
 
-        # importance scores based on variance
-        importance_scores = patches.var(dim=(2, 3))  # (B, num_patches)
+        # scores based on variance
+        variance_scores = patches.var(dim=(2, 3))  # (B, num_patches)
 
         # Decide which patches to shuffle based on shuffle rate
         num_to_shuffle = int(num_patches * rate)
         if num_to_shuffle > 0:
             for b in range(B):
-                scores = importance_scores[b]
+                scores = variance_scores[b]
                 sorted_indices = torch.argsort(scores)
                 shuffle_indices = sorted_indices[:num_to_shuffle]
 

@@ -57,14 +57,14 @@ def tps(x, y, patch_len=0, stride=0, shuffle_rate=0.0):
             patches[j] = padded_sample[start:start + patch_len]
             
    
-        importance_scores = np.var(patches, axis=(1, 2))
+        variance_scores = np.var(patches, axis=(1, 2))
         
 
         num_to_shuffle = int(num_patches * shuffle_rate)
         
         if num_to_shuffle > 0:
  
-            shuffle_indices = np.argsort(importance_scores)[:num_to_shuffle]
+            shuffle_indices = np.argsort(variance_scores)[:num_to_shuffle]
             
    
             patches_to_shuffle = patches[shuffle_indices].copy()
