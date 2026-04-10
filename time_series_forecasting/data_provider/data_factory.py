@@ -3,6 +3,7 @@
 
 from data_provider.data_loader import Dataset_ETT_hour, Dataset_ETT_minute, Dataset_Custom, Dataset_Pred, Dataset_PEMS
 from torch.utils.data import DataLoader
+import torch
 #from data_provider.uea import collate_fn
 data_dict = {
     'ETTh1': Dataset_ETT_hour,

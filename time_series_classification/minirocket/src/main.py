@@ -1,5 +1,6 @@
 # Modified from MiniRocket (https://github.com/angus924/minirocket)
 # Original authors: Angus Dempster, Daniel F. Schmidt, Geoffrey I. Webb
+# Copyright (C) 2025 Jafar Bakhshaliyev
 # Licensed under GNU General Public License v3.0
 
 import numpy as np
