@@ -1,4 +1,4 @@
-# Temporal Patch Shuffle (TPS): Leveraging Patch-Level Shuffling to Boost Generalization and Robustness in Time Series Forecasting [![arXiv](https://img.shields.io/badge/arXiv-Paper-B31B1B.svg)](ARXIV_LINK_HERE)
+# Temporal Patch Shuffle (TPS): Leveraging Patch-Level Shuffling to Boost Generalization and Robustness in Time Series Forecasting [![arXiv](https://img.shields.io/badge/arXiv-Paper-B31B1B.svg)](https://arxiv.org/abs/2604.09067)
 
 
 ## Abstract 
@@ -118,10 +118,18 @@ Headline numbers from the tables:
 - Classification (mean ± std): TPS improves both univariate MiniRocket (**0.804 ± 0.0098**) and multivariate MultiRocket (**0.643 ± 0.0253**).
 
 ## Citation
-TODO: Replace `ARXIV_LINK_HERE` with your arXiv URL and paste the official BibTeX here.
+If you find this repository useful, please cite our paper:
 
 ```bibtex
-% TODO: Add the official citation once available
+@misc{bakhshaliyev2026temporalpatchshuffletps,
+      title={Temporal Patch Shuffle (TPS): Leveraging Patch-Level Shuffling to Boost Generalization and Robustness in Time Series Forecasting}, 
+      author={Jafar Bakhshaliyev and Johannes Burchert and Niels Landwehr and Lars Schmidt-Thieme},
+      year={2026},
+      eprint={2604.09067},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2604.09067}, 
+}
 ```
 
 ## Acknowledgements
