@@ -1,8 +1,11 @@
-# Temporal Patch Shuffle (TPS): Leveraging Patch-Level Shuffling to Boost Generalization and Robustness in Time Series Forecasting [![arXiv](https://img.shields.io/badge/arXiv-Paper-B31B1B.svg)](https://arxiv.org/abs/2604.09067)
+# Sliding-Window Reordering with Overlap Averaging: A Simple Time-Domain Augmentation for Multivariate Forecasting
 
+Official implementation of **Temporal Patch Shuffle (TPS)** for time series forecasting and classification.
 
-## Abstract 
-Data augmentation is a crucial technique for improving model generalization and robustness, particularly in deep learning models where training data is limited. Although many augmentation methods have been developed for time series classification, most are not directly applicable to time series forecasting due to the need to preserve temporal coherence. In this work, we propose Temporal Patch Shuffle (TPS), a simple and model-agnostic data augmentation method for forecasting that extracts overlapping temporal patches, selectively shuffles a subset of patches using variance-based ordering as a conservative heuristic, and reconstructs the sequence by averaging overlapping regions. This design increases sample diversity while preserving forecast-consistent local temporal structure. We extensively evaluate TPS across nine long-term forecasting datasets using five recent model families (TSMixer, DLinear, PatchTST, TiDE, and LightTS), and across four short-term forecasting datasets using PatchTST, observing consistent performance improvements. Comprehensive ablation studies further demonstrate the effectiveness, robustness, and design rationale of the proposed method.
+[![arXiv](https://img.shields.io/badge/arXiv-Paper-B31B1B.svg)](https://arxiv.org/abs/2604.09067)
+
+## Abstract
+Augmentation has become a central technique for improving deep forecasting models, but classification-style transformations tend to break the coherence between the look-back window and its continuous future target. We describe a simple procedure that unfolds the joint input--target sequence into overlapping sliding windows, randomly reorders a controlled fraction of them---prioritized by a lightweight variance criterion---and reconstructs the sequence by averaging across the overlaps, producing synthetic samples with controlled variation while limiting temporal distortion. The procedure is model-agnostic, introduces only three interpretable hyperparameters, and achieves strong improvements over a comprehensive set of competing augmentations across nine long-term forecasting benchmarks with five backbone families (TSMixer, DLinear, PatchTST, TiDE, LightTS) and four short-term traffic benchmarks with PatchTST. Component-wise ablations, hyperparameter sensitivity studies, distributional-alignment diagnostics, probabilistic forecasting evaluation, and a transfer experiment to univariate and multivariate time series classification clarify the contribution of each design choice.
 
 ## Key Contributions
 - **TPS (Temporal Patch Shuffle)**:
@@ -118,7 +121,29 @@ Headline numbers from the tables:
 - Classification (mean ± std): TPS improves both univariate MiniRocket (**0.804 ± 0.0098**) and multivariate MultiRocket (**0.643 ± 0.0253**).
 
 ## Citation
-If you find this repository useful, please cite our paper:
+
+This work appears on arXiv under the earlier title
+*Temporal Patch Shuffle (TPS): Leveraging Patch-Level Shuffling to Boost
+Generalization and Robustness in Time Series Forecasting*.
+
+Please cite the CIKM 2026 version when the final ACM citation and DOI become available.
+
+### CIKM 2026
+
+```bibtex
+@inproceedings{bakhshaliyev2026tps,
+  title={Sliding-Window Reordering with Overlap Averaging:
+         A Simple Time-Domain Augmentation for Multivariate Forecasting},
+  author={Bakhshaliyev, Jafar and Burchert, Johannes and
+          Landwehr, Niels and Schmidt-Thieme, Lars},
+  booktitle={Proceedings of the 35th ACM International Conference
+             on Information and Knowledge Management},
+  year={2026},
+  doi={...}
+}
+```
+
+### Earlier arXiv version
 
 ```bibtex
 @misc{bakhshaliyev2026temporalpatchshuffletps,
