@@ -2,10 +2,18 @@
 
 Official implementation of **Temporal Patch Shuffle (TPS)** for time series forecasting and classification.
 
-[![arXiv](https://img.shields.io/badge/arXiv-Paper-B31B1B.svg)](https://arxiv.org/abs/2604.09067)
+Accepted at **CIKM 2026 (Research Track)**.
+
+- **CIKM 2026 paper:** DOI `10.1145/3799682.3840727`
+- **Earlier arXiv version:** [arXiv:2604.09067](https://arxiv.org/abs/2604.09067)
+- **Supplementary material:** [CIKM2026_TPS_Supplementary_Material.pdf](supplementary/CIKM2026_TPS_Supplementary_Material.pdf)
+- **Full forecasting results:** [results.xlsx](results/results.xlsx)
+
+[![CIKM 2026](https://img.shields.io/badge/CIKM-2026-blue.svg)](https://doi.org/10.1145/3799682.3840727)
+[![arXiv](https://img.shields.io/badge/arXiv-2604.09067-B31B1B.svg)](https://arxiv.org/abs/2604.09067)
 
 ## Abstract
-Augmentation has become a central technique for improving deep forecasting models, but classification-style transformations tend to break the coherence between the look-back window and its continuous future target. We describe a simple procedure that unfolds the joint input--target sequence into overlapping sliding windows, randomly reorders a controlled fraction of them---prioritized by a lightweight variance criterion---and reconstructs the sequence by averaging across the overlaps, producing synthetic samples with controlled variation while limiting temporal distortion. The procedure is model-agnostic, introduces only three interpretable hyperparameters, and achieves strong improvements over a comprehensive set of competing augmentations across nine long-term forecasting benchmarks with five backbone families (TSMixer, DLinear, PatchTST, TiDE, LightTS) and four short-term traffic benchmarks with PatchTST. Component-wise ablations, hyperparameter sensitivity studies, distributional-alignment diagnostics, probabilistic forecasting evaluation, and a transfer experiment to univariate and multivariate time series classification clarify the contribution of each design choice.
+Augmentation has become a central technique for improving deep forecasting models, but classification-style transformations tend to break the coherence between the look-back window and its continuous future target. We describe a simple procedure that unfolds the joint input–target sequence into overlapping sliding windows, randomly reorders a controlled fraction of them—prioritized by a lightweight variance criterion—and reconstructs the sequence by averaging across the overlaps, producing synthetic samples with controlled variation while limiting temporal distortion. The procedure is model-agnostic, introduces only three interpretable hyperparameters, and achieves strong improvements over a comprehensive set of competing augmentations across nine long-term forecasting benchmarks with five backbone families (TSMixer, DLinear, PatchTST, TiDE, LightTS) and four short-term traffic benchmarks with PatchTST. Component-wise ablations, hyperparameter sensitivity studies, distributional-alignment diagnostics, probabilistic forecasting evaluation, and a transfer experiment to univariate and multivariate time series classification clarify the contribution of each design choice.
 
 ## Key Contributions
 - **TPS (Temporal Patch Shuffle)**:
@@ -20,6 +28,8 @@ Augmentation has become a central technique for improving deep forecasting model
 - `time_series_classification/`:
   - `minirocket/`: univariate classification (MiniRocket) + augmentations (TPS and others)
   - `MultiRocket/`: multivariate classification (MultiRocket) + augmentations (TPS and others)
+- `results/`: detailed experimental results
+- `supplementary/`: CIKM 2026 supplementary material
 
 ## Quick Start
 
@@ -120,13 +130,26 @@ Headline numbers from the tables:
 - Short-term traffic forecasting (PeMS03/04/07/08 with PatchTST): TPS wins on most metrics (e.g., PeMS03: MSE/MAE **0.104/0.216**).
 - Classification (mean ± std): TPS improves both univariate MiniRocket (**0.804 ± 0.0098**) and multivariate MultiRocket (**0.643 ± 0.0253**).
 
+## Supplementary Material
+
+The supplementary material contains additional experimental details, including:
+
+- augmentation baseline hyperparameters and TPS hyperparameter selection,
+- matched seven-dataset long-term forecasting comparisons,
+- long-term forecasting results with standard deviations,
+- per-horizon short-term traffic forecasting results,
+- extended component-wise ablations,
+- augmentation size and augmentation ratio analyses,
+- UCR and UEA classification dataset details.
+
+- [Download the CIKM 2026 supplementary material](supplementary/CIKM2026_TPS_Supplementary_Material.pdf)
+- [Full per-dataset and per-horizon forecasting results](results/results.xlsx)
+
+This is especially important because your main paper will point readers to this repository.
+
 ## Citation
 
-This work appears on arXiv under the earlier title
-*Temporal Patch Shuffle (TPS): Leveraging Patch-Level Shuffling to Boost
-Generalization and Robustness in Time Series Forecasting*.
-
-Please cite the CIKM 2026 version when the final ACM citation and DOI become available.
+Please cite the CIKM 2026 version of the paper. The earlier arXiv version appears under the original TPS title.
 
 ### CIKM 2026
 
@@ -139,7 +162,7 @@ Please cite the CIKM 2026 version when the final ACM citation and DOI become ava
   booktitle={Proceedings of the 35th ACM International Conference
              on Information and Knowledge Management},
   year={2026},
-  doi={...}
+  doi={10.1145/3799682.3840727}
 }
 ```
 
@@ -157,8 +180,8 @@ Please cite the CIKM 2026 version when the final ACM citation and DOI become ava
 }
 ```
 
-## Acknowledgements
+## Code Attribution and Licenses
 - Forecasting code credits: see headers in `time_series_forecasting/` files and references in `time_series_forecasting/`.
 - MiniRocket is modified from the official implementation (see `time_series_classification/minirocket/LICENSE`).
 - MultiRocket is modified from the official implementation (see `time_series_classification/MultiRocket/LICENSE`).
-- Third-party attributions: `THIRD_PARTY_LICENSES.txt` inside each classification submodule.
+- Third-party attributions: see `THIRD_PARTY_LICENSES.txt` inside each classification submodule.
